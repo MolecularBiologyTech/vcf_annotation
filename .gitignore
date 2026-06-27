@@ -1,0 +1,24 @@
+# Large data files
+*.vcf
+*.vcf.gz
+*.vcf.gz.tbi
+*.fa.gz
+*.bw
+*.sql.gz
+*.tsv.gz
+
+# Docker data
+docker-data/
+vep_data/
+plugin_data/
+
+# BaseSpace CLI
+BaseSpaceCLI/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
