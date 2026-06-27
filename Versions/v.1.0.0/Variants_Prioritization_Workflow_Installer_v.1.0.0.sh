@@ -3,6 +3,7 @@ set -euo pipefail
 
 ###############################################
 # USER‑CONFIGURABLE VARIABLES
+# Test change - final verification test
 ###############################################
 
 BASE="/mnt/raid0/home/p2solo/Matteo_scripts/scripts/VARIANT_PRIORITIZATION_ANALYSIS"   # <----- Choose your base directory
