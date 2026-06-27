@@ -1,65 +1,49 @@
-# VCF Annotation Pipeline
+# VEP Installation Script
 
-Comprehensive bioinformatics pipeline for **trio-based variant prioritization** in rare Mendelian diseases.
+Installation script for VEP (Variant Effect Predictor) with plugins for variant annotation in bioinformatics pipelines.
 
 ## Overview
 
-This workflow is designed for:
-- **Identify de novo variants** in affected children from trio whole-genome sequencing (WGS) data
-- **Annotate both structural variants (SVs) and single nucleotide variants (SNVs)/indels**
-- **Filter variants** using stringent quality control and rarity criteria
-- **Prioritize variants** using phenotype-driven analysis (Exomiser) with HPO terms
-- **Generate visual evidence** through automated IGV snapshots
+This script installs VEP and essential annotation plugins:
+- **VEP** (Variant Effect Predictor) - Annotates SNVs/indels with functional consequences
+- **SpliceAI** - Deep learning-based splice site effect prediction
+- **dbNSFP** - Comprehensive functional annotation database
+- **LOFTEE** - Loss-of-function transcript effect estimator
+- **OpenTargets** - Drug target associations
 
 ## Installation
 
 Run the installation script on a Linux server:
 
 ```bash
-cd "/Users/matteozoia/Documents/Lavoro/HES-SO/Projects/Project 1 - TRIOs/10. LAST - Missing Last VEP version only/3. Main Script"
-bash Variants_Prioritization_Workflow_Installer_21.06.2026.sh
+cd "11. VEP re-do last script that worked of deleted on p2solo"
+bash install_VEP_and_plugins_13.06.2026.sh
 ```
 
 The script automatically:
-- Installs all required tools (VEP via Docker, AnnotSV, Exomiser, bcftools, samtools, bedtools)
-- Downloads annotation databases (CADD, dbNSFP, SpliceAI, REVEL, AlphaMissense, LOFTEE, OpenTargets, gnomAD v4, ClinVar)
-- Sets up conda environments
-- Generates analysis scripts
+- Installs Docker
+- Downloads VEP Docker container
+- Downloads and indexes annotation databases
+- Configures plugin directories
 
-## Usage
+## Requirements
 
-After installation:
+- Linux server with sudo access
+- Docker
+- Internet connection for downloading databases
 
-1. Edit `1_Define_data_specs.txt` with your data paths and HPO terms
-2. Run the analysis:
-```bash
-./2_Run_analysis.sh
-```
+## Script Location
 
-## Tools Included
-
-- **VEP** (Variant Effect Predictor) - Annotates SNVs/indels with functional consequences
-- **AnnotSV** - Annotates structural variants with clinical significance
-- **Exomiser** - Phenotype-driven variant prioritization using HPO terms
-- **bcftools** - VCF manipulation and trio-based de novo detection
-- **samtools/bedtools** - BAM/SAM file processing and genomic interval operations
-- **IGV Snapshot Automator** - Automated generation of IGV screenshots
-
-## Workflow
-
-The pipeline performs:
-1. **SV Annotation** via AnnotSV
-2. **SNV/Indel Annotation** via VEP (Docker-based)
-3. **Variant Filtering** - Trio-based de novo detection with quality control
-4. **Phenotype Prioritization** - Exomiser with HPO terms
-5. **Visualization** - Automated IGV snapshots for top candidates
+`11. VEP re-do last script that worked of deleted on p2solo/install_VEP_and_plugins_13.06.2026.sh`
 
 ## Version Control
 
-This repository uses git for version control. Each commit is automatically saved as a new version. Use the `git_commit_versioned.sh` script to commit changes with automatic version tagging.
+This repository uses git for version control. Each commit is automatically saved as a new version.
 
 ```bash
-./git_commit_versioned.sh "Your commit message"
+git add .
+git commit -m "Your commit message"
+git push
 ```
 
 ## Repository

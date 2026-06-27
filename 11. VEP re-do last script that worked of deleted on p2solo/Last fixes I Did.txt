@@ -1,0 +1,10 @@
+
+
+
+-> Get rid of opentargets vcf I think.. or find correct way...for OpenTargets to work...
+-> Use LoF yes
+-> LOFTEE page download all pm (see page LOFTEE GitHub)
+-> LOFTEE needs External.. To work.. install it...
+-> include LoF curated list GNOMAD as annotation from Nature studies and so on.
+-> Check VEP Plugins are in Plugin Docker but all data are in plugins_Data!!
+ 
