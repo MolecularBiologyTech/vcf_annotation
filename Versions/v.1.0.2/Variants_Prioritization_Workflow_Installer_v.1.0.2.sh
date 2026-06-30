@@ -2432,31 +2432,44 @@ if [ ! -f "${SNP_VCF_ANN}" ]; then
     -v $VEP_DATA:/data \
     -v $INPUT_DIR:/input \
     -v $SNV_ANNOTATED_DIR:/output \
-    -v $PLUGIN_DATA:/opt/vep/plugin_data \
-    -v $PLUGIN_DATA/loftee:/opt/vep/Plugins \
-    ensemblorg/ensembl-vep \
+    -v $PLUGIN_DATA:/plugins \
+    -v $PLUGIN_DATA/../vep:/vep \
+    ensemblorg/ensembl-vep:release_115.0 \
     vep \
-      --input_file /input/${INPUT_FILE} \
-      --output_file /output/$(basename "$OUTPUT_VCF") \
-      --force_overwrite \
-      --vcf \
-      --species homo_sapiens \
-      --assembly GRCh38 \
       --cache \
       --offline \
-      --dir_cache /data \
-      --fasta "/data/$(basename "$(dirname "$FASTA_BGZ)")/Homo_sapiens.GRCh38.dna.primary_assembly.fa.bgz" \
       --everything \
-      --no_stats \
+      --format vcf \
+      --vcf \
+      --force_overwrite \
+      --assembly GRCh38 \
+      --dir_cache /data \
+      --dir_plugins /plugins \
+      --input_file /input/${INPUT_FILE} \
+      --output_file /output/$(basename "$OUTPUT_VCF") \
       --compress_output bgzip \
-      --plugin CADD,/opt/vep/plugin_data/cadd/whole_genome_SNVs.tsv.gz,/opt/vep/plugin_data/cadd/gnomad.genomes.r3.0.snv.tsv.gz,/opt/vep/plugin_data/cadd/gnomad.genomes.r3.0.indel.tsv.gz \
-      --plugin dbNSFP,/opt/vep/plugin_data/dbnsfp/dbNSFPv5.3.1.txt.gz \
-      --plugin SpliceAI,/opt/vep/plugin_data/spliceai/spliceai_scores.raw.snv.hg38.vcf.gz,/opt/vep/plugin_data/spliceai/spliceai_scores.raw.indel.hg38.vcf.gz \
-      --plugin REVEL,/opt/vep/plugin_data/revel/revel_all_chromosomes.csv.gz \
-      --plugin AlphaMissense,file=/opt/vep/plugin_data/alphamissense/AlphaMissense_hg38.tsv.gz \
-      --plugin LOFTEE,loftee_path=/opt/vep/Plugins,human_ancestor_fa=/opt/vep/plugin_data/loftee/human_ancestor.fa.gz,conservation_file=/opt/vep/plugin_data/loftee/conservation.bw \
-      --plugin OpenTargets,file=/opt/vep/plugin_data/opentargets/opentargets_data.json.gz \
-      --custom "/opt/vep/plugin_data/gnomad_v4/gnomad.genomes.v4.0.sites.vcf.bgz,gnomADv4,vcf,exact,0,AF" \
+      \
+      --plugin LoF,\
+loftee_path=/plugins/loftee,\
+human_ancestor_fa=/plugins/loftee/human_ancestor.fa.gz,\
+conservation_file=/plugins/loftee/gerp_conservation_scores.homo_sapiens.GRCh38.bw,\
+max_ent_scan=/plugins/maxEntScan,\
+splice_data=/plugins/loftee/splice_data \
+      \
+      --plugin LoFtool \
+      \
+      --plugin SpliceAI,\
+snv=/plugins/spliceai/spliceai_scores.raw.snv.hg38.vcf.gz,\
+indel=/plugins/spliceai/spliceai_scores.raw.indel.hg38.vcf.gz,\
+snv_spliceai_masked=/plugins/spliceai/spliceai_scores.masked.snv.hg38.vcf.gz,\
+indel_spliceai_masked=/plugins/spliceai/spliceai_scores.masked.indel.hg38.vcf.gz \
+      \
+      --plugin dbNSFP,/plugins/dbnsfp/dbNSFP5.3.1a_grch38.gz,ALL \
+      \
+      --plugin gnomADc,/plugins/gnomad/genomes/gnomad.genomes.v4.1.1.all.vcf.gz \
+      \
+      --custom /plugins/curated_lof/curated_lof.vcf.gz,CuratedLoF,vcf,exact,0,Verdict,Gene \
+      \
       --fork 16 \
       --buffer_size 20000
 
