@@ -1,118 +1,76 @@
-# Trio-Based De Novo Variant Detection and Prioritization Workflow
+# Variants Prioritization Workflow - Installation and Usage Guide
 
-## Overview
+## Quick Start
 
-This workflow is designed for **trio-based de novo variant detection and prioritization** in rare Mendelian diseases. It combines comprehensive annotation, stringent quality control, and phenotype-driven analysis to identify pathogenic variants in affected children.
+### Installation (Recommended Method)
 
----
+Use the simple installation wrapper script:
 
-## Prioritization Workflow
+```bash
+./install_pipeline.sh /path/to/installation/directory
+```
 
-### Step 0 - Quality Filtering
-- **MIN_DP ≥10**: Minimum depth for reliable genotype calls
-- **MIN_GQ ≥20**: Genotype quality ≥99% confidence
-- **Purpose**: Ensures only high-confidence variants proceed to analysis
-- **Implementation**: Applied during bcftools filtering in 2_Run_analysis.sh 
+This will:
+- Create all necessary directories
+- Set the BASE variable automatically
+- Run the full installation
+- Install all tools and databases
 
-### Step 1 - Inheritance Filtering
-- **Trio-based de novo pattern detection**
-  - Child has variant (0/1, 1/1, or 1 on chrX for males)
-  - Both parents are reference (0/0)
-- **Purpose**: Prevents inherited variants from being misclassified as de novo
-- **Implementation**: Lines 2340-2368 in 2_Run_analysis.sh 
-- **Additional safeguards**:
-  - X-linked de novo guard (chrX in males)
-  - Parental alt-read suppression (AD_ALT == 0 for parents)
-  - Allelic balance filtering (0.3-0.7 for child)
+**Example:**
+```bash
+./install_pipeline.sh /home/user/trio_analysis
+```
 
-### Step 2 - Population Frequency Filtering
-- **AF_THRESHOLD="0.001"** (0.1%, stricter than standard 1%)
-- **Checks all gnomAD AF fields**:
-  - INFO/AF
-  - INFO/gnomAD_AF
-  - INFO/gnomADg_AF
-  - INFO/gnomADg_AF_popmax
-  - INFO/gnomAD_exomes_AF
-  - INFO/gnomAD_genomes_AF
-- **Purpose**: Removes common polymorphisms, retains ultra-rare variants
-- **Implementation**: Lines 2317-2324 in 2_Run_analysis.sh 
+### Installation (Manual Method)
 
-### Step 3 - Variant Effect Filtering
-The workflow generates **two separate VCFs**:
+If you prefer manual installation:
 
-#### LoF VCF (filtered_LoF.vcf.gz)
-- **High-impact coding variants only**:
-  - stop_gained
-  - frameshift_variant
-  - splice_acceptor_variant
-  - splice_donor_variant
-  - start_lost
-  - stop_lost
-- **Additional filters**:
-  - CADD_PHRED > 20 OR missing
-  - REVEL > 0.5 OR missing
-  - SpliceAI > 0.2 OR missing
-  - AnnotSV pathogenic/likely_pathogenic OR missing
-
-#### Non-coding VCF (filtered_non_coding.vcf.gz)
-- **Regulatory/intronic/intergenic variants**
-- **No consequence filter** (retains all non-coding variants)
-- **Purpose**: Allows REMM-based regulatory variant prioritization
-
-### Step 4 - Clinical Database Annotation (ClinVar)
-- **ClinVar is NOT used for filtering**
-- **ClinVar annotations are included for manual review**
-- **Rationale**: See "Why ClinVar is NOT used for direct filtering" below
-
-### Step 5 - Phenotype-Driven Prioritization
-- **Exomiser with HPO terms**
-  - hiPhive prioritizer: Phenotype similarity scoring
-  - OMIM prioritizer: Matches variants to known diseases
-- **Implementation**: Lines 2524-2528 in 2_Run_analysis.sh 
-- **Output**: Ranked candidate variants with gene-level and variant-level scores
+1. Download the latest installer from the `Versions/` directory
+2. Edit the `BASE` variable at the top of the script to your desired installation path
+3. Run with sudo:
+```bash
+sudo bash Versions/v.1.0.3/Variants_Prioritization_Workflow_Installer_v.1.0.3.sh
+```
 
 ---
 
-## Why ClinVar is NOT Used for Direct Filtering
+## 1. Purpose of the Installation
 
-### 1. Novel Pathogenic Variants
-- Rare diseases often involve newly discovered pathogenic variants not yet in ClinVar
-- Filtering by ClinVar would exclude these novel but clinically relevant variants
-- ~30-50% of pathogenic de novo variants in rare diseases are not in ClinVar
+This installation sets up a complete bioinformatics pipeline for **trio-based variant prioritization**. The workflow is designed to:
 
-### 2. ClinVar Coverage Limitations
-- ClinVar is biased toward well-studied genes and common diseases
-- Many rare disease genes have limited ClinVar annotations
-- Structural variants (SVs) have poor ClinVar coverage compared to SNVs
+- **Identify de novo variants** in affected children from trio whole-genome sequencing (WGS) data
+- **Annotate both structural variants (SVs) and single nucleotide variants (SNVs)/indels**
+- **Filter variants** using stringent quality control and rarity criteria
+- **Prioritize variants** using phenotype-driven analysis (Exomiser) with HPO terms
+- **Generate visual evidence** through automated IGV snapshots
 
-### 3. False Negatives in ClinVar
-- Variants may be classified as "VUS" (Uncertain Significance) but still be pathogenic
-- Lag between discovery and ClinVar submission/curated classification
-- Different submitters may have conflicting interpretations
-
-### 4. Complementary Approach (This Workflow's Method)
-- ClinVar annotations are **included in output for manual review**
-- Exomiser's OMIM prioritizer indirectly captures clinical database associations
-- Pathogenicity scores (CADD, REVEL, SpliceAI) provide computational evidence
-- Phenotype matching (HPO terms) is more powerful for rare diseases than database lookup
-
-### 5. Clinical Best Practice
-- ACMG guidelines recommend using ClinVar as **supporting evidence**, not a filter
-- Combining multiple evidence types (frequency, pathogenicity, phenotype) is more robust
-- Manual review of ClinVar status is preferred over automated filtering
-
-### Summary
-This workflow uses ClinVar as an **annotation layer for manual review** rather than a filtering criterion. This approach maximizes sensitivity for novel pathogenic variants while still providing ClinVar context for interpretation.
+The pipeline is specifically optimized for rare Mendelian diseases where de novo mutations are a strong genetic signal, particularly in severe early-onset conditions.
 
 ---
 
-## Tools Used and Their Purposes
+## 2. Installation and Configuration Overview
+
+The installation script (Variants_Prioritization_Workflow_Installer_v.1.0.2.sh) automatically:
+
+1. **Installs all required tools** (VEP via Docker, AnnotSV, Exomiser, bcftools, samtools, bedtools)
+2. **Downloads annotation databases** (CADD, dbNSFP, SpliceAI, REVEL, AlphaMissense, LOFTEE, OpenTargets, gnomAD v4, ClinVar)
+3. **Sets up conda environments** (trio-annot-env, multiqc-env)
+4. **Configures Docker** for VEP execution
+5. **Generates configuration files** (1_Define_data_specs.txt, 2_Run_analysis.sh)
+
+After installation, users only need to:
+- Edit 1_Define_data_specs.txt with their data paths and HPO terms
+- Run 2_Run_analysis.sh to execute the complete pipeline
+
+---
+
+## 3. Tools Used/Installed and Their Purpose
 
 ### Core Bioinformatics Tools
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| **VEP** (Variant Effect Predictor) | 116.0 (Docker) | Annotates SNVs/indels with functional consequences, gene names, and pathogenicity scores |
+| **VEP** (Variant Effect Predictor) | 116.0 (Docker) | Annotates SNVs/indels with functional consequences, gene names, and pathogenicity scores via Docker container (latest release June 2026) |
 | **AnnotSV** | v3.5.10 | Annotates structural variants (SVs) with clinical significance, gene overlap, and population frequency |
 | **Exomiser** | 15.0.0 | Phenotype-driven variant prioritization using HPO terms and disease databases |
 | **bcftools** | 1.21 | VCF manipulation, filtering, and trio-based de novo detection |
@@ -120,190 +78,267 @@ This workflow uses ClinVar as an **annotation layer for manual review** rather t
 | **bedtools** | Latest | Genomic interval operations and region analysis |
 | **Docker** | Latest | Containerization platform for VEP execution |
 
+### Annotation Databases
+
+#### VEP Annotation Databases (for SNVs/Indels)
+
+| Database | Purpose |
+|----------|---------|
+| **ClinVar** | Clinical significance annotations (pathogenic/benign classifications) |
+| **CADD** (v1.6) | Combined Annotation Dependent Depletion scores for pathogenicity prediction (downloaded separately for VEP) |
+| **dbNSFP** (v5.3.1) | Comprehensive functional annotation database with multiple prediction scores |
+| **SpliceAI** | Deep learning-based splice site effect prediction |
+| **REVEL** | Rare Exome Variant Ensemble Learner for missense variant pathogenicity |
+| **AlphaMissense** | Deep learning-based missense variant pathogenicity prediction |
+| **LOFTEE** | Loss-of-function transcript effect estimator for filtering spurious LoF variants |
+| **OpenTargets** | Drug target associations and therapeutic insights |
+| **gnomAD v4** | Latest population frequency data from large-scale sequencing projects |
+| **VEP Cache** (GRCh38) | Pre-computed variant annotations for fast lookup (Docker-based, v116.0) |
+
+#### AnnotSV Annotation Databases (for Structural Variants)
+
+| Database | Purpose |
+|----------|---------|
+| **ClinVar** | Clinical significance annotations for SVs |
+| **CADD** (via AnnotSV) | CADD scores for SV pathogenicity prediction (downloaded automatically during AnnotSV annotation installation) |
+| **gnomAD** | Population frequency data for SVs |
+| **AnnotSV Annotations** | SV-specific annotations including ACMG classifications, gene overlap, and clinical significance |
+
 ### Supporting Tools
 
 | Tool | Purpose |
 |------|---------|
-| **Miniconda + mamba** | Package management and conda environment setup |
-| **MultiQC** | Quality control report aggregation |
-| **IGV Snapshot Automator** | Automated IGV visualization for variant validation |
+| **Miniconda** | Python/R package management and conda environments |
+| **MultiQC** | Aggregates quality control metrics from multiple tools |
+| **IGV Snapshot Automator** | Automated generation of IGV screenshots for variant visualization |
+| **bcftools plugins** (mendelian, trio-dnm) | Specialized plugins for trio analysis |
+
+### Conda Environments
+
+- **trio-annot-env**: Main environment for annotation and filtering (includes bcftools, samtools, bedtools, pandas)
+- **multiqc-env**: Environment for quality control reporting
 
 ---
 
-## Annotation Sources and Origins
+## 4. Annotations Added to VCF Files for Variant Prioritization
 
-### VEP Annotation Databases (for SNVs/Indels)
+### SV Annotations (via AnnotSV)
 
-| Database | Version | Source | Purpose |
-|----------|---------|--------|---------|
-| **ClinVar** | Latest | NCBI FTP (ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/) | Clinical significance annotations (pathogenic/benign classifications) |
-| **CADD** | v1.6 | Kircher Lab (kircherlab.bihealth.org) | Combined Annotation Dependent Depletion scores for pathogenicity prediction |
-| **dbNSFP** | v5.3.1 | SoftGenetics (dbnsfp.softgenetics.com) | Comprehensive functional annotation database with multiple prediction scores |
-| **SpliceAI** | Latest | Broad Institute (storage.googleapis.com/broad-ml4cv-public) | Deep learning-based splice site effect prediction |
-| **REVEL** | Latest | MSSM (rothsj06.u.hpc.mssm.edu) | Rare Exome Variant Ensemble Learner for missense variant pathogenicity |
-| **AlphaMissense** | Latest | DeepMind (storage.googleapis.com/alphamissense) | Deep learning missense pathogenicity prediction |
-| **LOFTEE** | Latest | GitHub (konradjk/loftee) | Loss-of-function transcript effect estimator for filtering spurious LoF variants |
-| **OpenTargets** | Latest | OpenTargets (storage.googleapis.com/open-targets-data-releases) | Drug target associations and therapeutic insights |
-| **gnomAD v4** | Latest | gnomAD (gnomad.broadinstitute.org) | Latest population frequency data from large-scale sequencing projects |
-| **VEP Cache** | v116.0 | Ensembl (Docker container) | Pre-computed variant annotations for fast lookup |
+The SV annotation pipeline adds the following fields to the INFO column:
 
-### AnnotSV Annotation Databases (for Structural Variants)
+| Annotation | Description | Use in Prioritization |
+|------------|-------------|----------------------|
+| **ACMG_class** | ACMG classification (1-3, full_3) | Identifies clinically significant SVs |
+| **SV_chrom, SV_start, SV_end** | Genomic coordinates | Enables region-based analysis |
+| **SVTYPE** | Type of SV (DEL, DUP, INV, INS) | Differentiates variant classes |
+| **SVLEN** | Length of SV | Size-based filtering |
+| **AnnotSVtype** | Clinical significance (pathogenic, likely_pathogenic) | Direct clinical relevance |
+| **Gene** | Overlapping gene symbols | Gene-based prioritization |
+| **gnomAD_AF** | Population frequency | Rarity filtering |
+| **gnomADg_AF** | gnomAD genome frequency | Population-specific rarity |
+| **gnomADg_AF_popmax** | Maximum population frequency | Conservative rarity filtering |
 
-| Database | Version | Source | Purpose |
-|----------|---------|--------|---------|
-| **ClinVar** | Latest | NCBI FTP | Clinical significance annotations for SVs |
-| **CADD** | v1.6 | Kircher Lab | CADD scores for SV pathogenicity prediction (via AnnotSV) |
-| **gnomAD** | Latest | gnomAD | Population frequency data for SVs |
-| **AnnotSV Annotations** | v3.5.10 | AnnotSV built-in | SV-specific annotations including ACMG classifications, gene overlap, and clinical significance |
-| **Exomiser** | 2512 | Exomiser | Gene-disease associations and phenotype data |
-| **REMM** | v0.4 | Kircher Lab | Regulatory element missense mutation scores for non-coding variants |
+### SNV/Indel Annotations (via VEP Docker)
 
----
+The VEP pipeline (executed via Docker container) adds comprehensive annotations via the CSQ INFO field using multiple plugins:
 
-## Annotations Added to Raw VCF
+| Annotation | Description | Use in Prioritization |
+|------------|-------------|----------------------|
+| **Consequence** | Variant consequence (e.g., stop_gained, frameshift) | Identifies high-impact variants |
+| **SYMBOL** | Gene symbol | Gene-based prioritization |
+| **CADD_PHRED** | CADD Phred-scaled score (v1.6) | Pathogenicity prediction (score >20 = top 1%) |
+| **REVEL** | Rare Exome Variant Ensemble Learner score | Missense variant pathogenicity (score >0.5 = likely pathogenic) |
+| **SpliceAI** | Deep learning splice site prediction | Splice variant assessment (score >0.2 = significant) |
+| **AlphaMissense** | Deep learning missense pathogenicity | State-of-the-art missense variant prediction |
+| **dbNSFP** | Multiple functional prediction scores | Comprehensive variant annotation |
+| **LOFTEE** | Loss-of-function transcript effect | Filters spurious LoF variants |
+| **OpenTargets** | Drug target associations | Therapeutic insights |
+| **gnomAD v4 AF** | Latest population frequencies (v4) | Updated rarity filtering |
+| **CLNSIG, CLNREVSTAT, CLNDN** | ClinVar clinical significance | Known disease associations |
+| **gnomAD_AF, gnomADg_AF** | Legacy population frequencies | Cross-reference rarity metrics |
 
-### SNV/Indel VCF Annotations (via VEP)
+### Combined Annotation Strategy
 
-VEP adds comprehensive annotations to the **CSQ INFO field**. Each variant's CSQ field contains multiple pipe-separated values:
+The workflow uses a **tiered annotation approach**:
 
-| Annotation | Field in CSQ | Description | Use in Prioritization |
-|------------|--------------|-------------|----------------------|
-| **Consequence** | Consequence | Variant consequence (e.g., stop_gained, frameshift) | Identifies high-impact variants |
-| **SYMBOL** | SYMBOL | Gene symbol | Gene-based prioritization |
-| **CADD_PHRED** | CADD_PHRED | CADD Phred-scaled score (v1.6) | Pathogenicity prediction (score >20 = top 1%) |
-| **REVEL** | REVEL | Rare Exome Variant Ensemble Learner score | Missense variant pathogenicity (score >0.5 = likely pathogenic) |
-| **SpliceAI** | SpliceAI | Deep learning splice site prediction | Splice variant assessment (score >0.2 = significant) |
-| **AlphaMissense** | AlphaMissense | Deep learning missense pathogenicity | State-of-the-art missense variant prediction |
-| **dbNSFP** | Multiple fields | Comprehensive functional prediction scores | Cross-reference multiple predictors |
-| **LOFTEE** | LoF_flag | Loss-of-function transcript effect | Filters spurious LoF variants |
-| **OpenTargets** | OpenTargets | Drug target associations | Therapeutic insights |
-| **gnomAD v4 AF** | gnomADg_AF | Latest population frequencies (v4) | Updated rarity filtering |
-| **CLNSIG** | CLNSIG | ClinVar clinical significance | Known disease associations |
-| **CLNREVSTAT** | CLNREVSTAT | ClinVar review status | Confidence in clinical interpretation |
-| **CLNDN** | CLNDN | ClinVar disease name | Associated disease information |
-| **gnomAD_AF** | gnomAD_AF | Legacy population frequencies | Cross-reference rarity metrics |
-
-**Example CSQ field structure:**
-```
-CSQ=Consequence|SYMBOL|CADD_PHRED|REVEL|SpliceAI|AlphaMissense|CLNSIG|CLNREVSTAT|...
-```
-
-### SV VCF Annotations (via AnnotSV)
-
-AnnotSV adds annotations as **separate INFO fields** to the SV VCF:
-
-| Annotation | INFO Field | Description | Use in Prioritization |
-|------------|-----------|-------------|----------------------|
-| **Gene** | Gene | Overlapping gene symbols | Gene-based prioritization |
-| **SVTYPE** | SVTYPE | Structural variant type (DEL, DUP, INV, INS) | Variant classification |
-| **ANNOTSV** | ANNOTSV | AnnotSV pathogenicity classification | Clinical significance |
-| **gnomAD_AF** | gnomAD_AF | Population frequency | Rarity filtering |
-| **gnomADg_AF** | gnomADg_AF | gnomAD genome frequency | Population-specific rarity |
-| **gnomADg_AF_popmax** | gnomADg_AF_popmax | Maximum population frequency | Conservative rarity filtering |
-| **ACMG_Classification** | ACMG_Classification | ACMG pathogenicity classification | Clinical interpretation |
-| **Disease_Mechanism** | Disease_Mechanism | Known disease mechanism | Gene-disease association |
-| **HI_ClinVar** | HI_ClinVar | ClinVar haploinsufficiency score | Dosage sensitivity |
+1. **Functional impact** (Consequence: stop_gained, frameshift, splice variants)
+2. **Pathogenicity scores** (CADD >20, REVEL >0.5, SpliceAI >0.2)
+3. **Clinical evidence** (ClinVar pathogenic, ACMG classifications)
+4. **Population rarity** (all gnomAD AF fields <0.001)
+5. **Gene-level information** (symbol for phenotype matching)
 
 ---
 
-## Workflow Architecture
+## 5. De Novo Variant Identification Using bcftools and Exomiser
 
-### Input Files
-- **INPUT_SV_VCF**: Structural variants VCF (gzipped)
-- **INPUT_SNP_VCF**: SNV/indel VCF (gzipped)
-- **PED_FILE**: Trio pedigree file (FAMID INDID FATHER MOTHER SEX PHENOTYPE)
-- **PROBAND_BAM, FATHER_BAM, MOTHER_BAM**: BAM files for IGV visualization
-- **GENOME_FASTA**: Reference genome (GRCh38)
+### Trio-Based De Novo Detection with bcftools
 
-### Output Structure
+The pipeline uses a **comprehensive filtering strategy** to identify true de novo variants:
+
+#### Step 1: Genotype Pattern Filtering
+
 ```
-ANALYSIS_OUTPUT_DIR/
-├── 01_annotated_sv/
-│   ├── trio_SV_annotated.tsv
-│   └── trio_SV_annotated.vcf.gz
-├── 02_annotated_snv/
-│   ├── trio_SNP_annotated.vcf.gz
-│   └── SNP_stats.txt
-├── 03_exomiser_phenotype_filt/
-│   ├── filtered_LoF.vcf.gz
-│   ├── filtered_non_coding.vcf.gz
-│   ├── exomiser_results_LoF/
-│   └── exomiser_results_non_coding/
-└── 04_IGV_snapshots/
-    └── [IGV snapshot images]
+Child:  0/1 or 1/1 (heterozygous or homozygous alternate)
+Father: 0/0 (homozygous reference)
+Mother: 0/0 (homozygous reference)
 ```
 
----
+This ensures the variant is present in the affected child but absent in both parents.
 
-## Installation
+#### Step 2: Allelic Balance Filtering
 
-Run the installation script on a Linux server:
-
-```bash
-cd "Versions/v1.0.0"
-bash Variants_Prioritization_Workflow_Installer_v1.0.0.sh
+```
+Child ALT fraction: 0.3 ≤ (ALT_AD / (REF_AD + ALT_AD)) ≤ 0.7
+Parents ALT reads: 0 (no alt reads)
 ```
 
-The script automatically:
-- Installs Docker
-- Downloads VEP Docker container
-- Downloads and indexes annotation databases
-- Configures plugin directories
+This prevents:
+- False de novo calls from sequencing noise
+- Parental mosaicism misclassification
+- Mapping artifacts
 
-## Requirements
+#### Step 3: Genotype Quality Filtering
 
-- Linux server with sudo access
-- Docker
-- Internet connection for downloading databases
+```
+DP ≥ 10 (depth) for all trio members
+GQ ≥ 20 (genotype quality) for all trio members
+```
 
-## Usage Instructions
+Ensures reliable genotype calls.
 
-1. **Run installation script** to install tools and download databases
-2. **Edit 1_Define_data_specs.txt** with your data paths and HPO terms
-3. **Run 2_Run_analysis.sh** to execute the complete pipeline
-4. **Review results** in the output directory
-5. **Examine Exomiser HTML reports** for phenotype-driven prioritization
-6. **Check IGV snapshots** for visual validation of top candidates
+#### Step 4: Population Rarity Filtering
+
+```
+All gnomAD AF fields < 0.001 OR missing
+```
+
+De novo pathogenic variants are typically ultra-rare in population databases.
+
+#### Step 5: SVTYPE Sanity Checks
+
+```
+Excludes SVs where child GT = 0/0 for that SVTYPE
+```
+
+Prevents spurious SV records where the variant is not actually present in the child.
+
+#### Step 6: X-Linked Guard (Sex-Aware)
+
+The implementation is sex-aware and handles both males and females correctly:
+
+```
+For chrX in males (sex=1): if child GT=1, mother must be 0/0
+For chrX in females (sex=2): if child GT=0/1 or 1/1, mother must be 0/0
+```
+
+**For proband girls:** The allelic balance filtering (0.3-0.7 range) works correctly on chrX because females have two X chromosomes and can be heterozygous (0/1) or homozygous alternate (1/1), just like on autosomes. The X-linked guard prevents misclassification of inherited maternal X-linked variants as de novo by ensuring the mother is homozygous reference (0/0) when the child has an alternate allele on chrX.
+
+Prevents misclassification of inherited maternal X-linked variants as de novo for both sexes.
+
+### Variant Classification
+
+After filtering, variants are split into two categories:
+
+#### LoF (Loss of Function) VCF - Coding Variants
+
+**Additional filters applied:**
+- Consequence: stop_gained, frameshift, splice_acceptor, splice_donor, start_lost, stop_lost
+- CADD_PHRED > 20 OR missing
+- REVEL > 0.5 OR missing
+- SpliceAI > 0.2 OR missing
+- ANNOTSV contains "pathogenic" OR "likely_pathogenic" OR missing
+
+These filters ensure only high-impact protein-truncating variants with strong pathogenicity evidence are prioritized.
+
+#### Non-Coding VCF - Regulatory/Intergenic Variants
+
+**Excludes** all high-impact coding consequences, focusing on:
+- Regulatory elements
+- Intronic regions
+- Intergenic regions
+
+### Exomiser Prioritization
+
+After bcftools filtering, Exomiser adds phenotype-driven prioritization:
+
+#### Input to Exomiser
+
+- **Filtered VCFs** (LoF and non-coding)
+- **PED file** with trio structure
+- **HPO terms** describing patient phenotype
+- **OMIM disease ID** for known disease associations
+
+#### Exomiser Analysis Steps
+
+1. **Failed Variant Filter** - Removes variants that fail basic quality checks
+2. **Priority Score Filter** - Applies minimum priority score threshold (default: 0.501)
+3. **Inheritance Filter** - Enforces de novo inheritance pattern
+4. **OMIM Prioritiser** - Matches variants to known OMIM diseases
+5. **hiPhive Prioritiser** - Uses phenotype similarity via HPO terms
+
+#### Exomiser Output
+
+Exomiser produces ranked lists of candidate variants with:
+- **Gene-level scores** - How well the gene matches the phenotype
+- **Variant-level scores** - Combined evidence from inheritance, frequency, and pathogenicity
+- **HTML reports** - Interactive visualization of results
+- **TSV files** - Tabular data for downstream analysis
+- **VCF files** - Annotated VCF with Exomiser scores
+
+### Compound-Heterozygous Detection
+
+The pipeline also identifies **compound-heterozygous candidates** by counting genes with ≥2 hits in the LoF VCF. This helps identify cases where two different damaging alleles in the same gene (one from each parent) cause disease.
 
 ---
 
-## Key Features
+## 6. Visualization via IGV Snapshot Automator
 
-- **Comprehensive annotation**: VEP + AnnotSV for both SVs and SNVs
-- **Stringent trio-based filtering**: bcftools for true de novo detection
-- **Phenotype-driven prioritization**: Exomiser with HPO terms
-- **Quality control**: MultiQC reports and automated QC
-- **Visual validation**: Automated IGV snapshots for top candidates
-- **ClinVar-aware**: Annotations included for manual review without filtering
-- **Regulatory variant support**: REMM-based non-coding variant prioritization
-- **Reproducible**: Docker-based VEP, conda environments, version-controlled databases
+After variant prioritization, the pipeline generates automated IGV snapshots for visual validation of candidate variants.
+
+### IGV Snapshot Process
+
+The IGV Snapshot Automator creates PNG images of genomic regions around prioritized variants:
+
+#### Input to IGV Snapshot
+
+- **BAM files** for proband, father, and mother
+- **Variant regions** (chromosome, start, end positions) from Exomiser results
+- **Reference genome** for proper alignment visualization
+
+#### IGV Snapshot Generation Steps
+
+1. **Region Extraction** - Extracts genomic coordinates from Exomiser output files
+2. **IGV Loading** - Loads BAM files and reference genome in headless mode (using xvfb)
+3. **Snapshot Capture** - Captures PNG images at specified genomic regions
+4. **Organized Output** - Saves snapshots in LoF and non-coding subdirectories
+
+#### IGV Snapshot Output
+
+The IGV snapshot process produces:
+- **PNG images** of variant regions showing read alignments for all trio members
+- **LoF snapshots** - Images for loss-of-function variant regions
+- **Non-coding snapshots** - Images for regulatory/intergenic variant regions
+- **Visual evidence** - Enables manual inspection of variant calls and alignment quality
+
+#### Purpose of IGV Visualization
+
+IGV snapshots provide:
+- **Read-level validation** - Verify that variant calls are supported by sequencing data
+- **Allelic balance confirmation** - Visual check of heterozygous/homozygous status
+- **Mapping quality assessment** - Identify potential mapping artifacts
+- **Manual review** - Enable expert review of borderline cases
+- **Clinical reporting** - Provide visual evidence for clinical interpretation
 
 ---
 
-## References
+## Summary
 
-- VEP: https://www.ensembl.org/info/docs/tools/vep/index.html
-- AnnotSV: https://github.com/lgmgeo/AnnotSV
-- Exomiser: https://github.com/exomiser/Exomiser
-- ClinVar: https://www.ncbi.nlm.nih.gov/clinvar/
-- gnomAD: https://gnomad.broadinstitute.org/
-- CADD: https://cadd.gs.washington.edu/
-- REVEL: https://sites.google.com/site/jpopgen/revel
-- SpliceAI: https://github.com/Illumina/SpliceAI
+The workflow integrates:
 
----
+1. **Comprehensive annotation** (VEP + AnnotSV) for both SVs and SNVs
+2. **Stringent trio-based filtering** using bcftools to identify true de novo variants
+3. **Phenotype-driven prioritization** using Exomiser with HPO terms
+4. **Quality control** through MultiQC reports
+5. **Visual validation** through automated IGV snapshots
 
-## Repository
-
-https://github.com/MolecularBiologyTech/vcf_annotation
-
-## License
-
-See individual tool licenses for specific usage terms.
-
----
-
-**Version**: 1.0  
-**Last Updated**: 2026-06-21  
-**Genome Assembly**: GRCh38  
-**Analysis Type**: Trio-based de novo variant detection and prioritization
+This multi-layered approach ensures that only high-confidence, clinically relevant variants are prioritized for further investigation, reducing false positives and increasing diagnostic yield for rare Mendelian diseases.
