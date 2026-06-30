@@ -7,7 +7,7 @@
 Use the simple installation wrapper script:
 
 ```bash
-./install_pipeline.sh /path/to/installation/directory
+./Variants_Prioritization_Workflow_Installer_wrapper.sh /path/to/installation/directory
 ```
 
 This will:
@@ -18,7 +18,7 @@ This will:
 
 **Example:**
 ```bash
-./install_pipeline.sh /home/user/trio_analysis
+./Variants_Prioritization_Workflow_Installer_wrapper.sh /home/user/trio_analysis
 ```
 
 ### Installation (Manual Method)
