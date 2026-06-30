@@ -46,6 +46,12 @@ chmod +x "$DEST_FILE"
 
 echo "Copied modified file to: $DEST_FILE"
 
+# Copy README.md to new version directory
+if [ -f "$REPO_DIR/README.md" ]; then
+    cp "$REPO_DIR/README.md" "$NEW_DIR/README.md"
+    echo "Copied README.md to: $NEW_DIR/README.md"
+fi
+
 # Generate commit message by comparing the two versions (BEFORE restoring)
 echo ""
 echo "Comparing $CURRENT_VERSION to $NEW_VERSION..."
