@@ -22,3 +22,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.log
+
+# Development/testing scripts
+.Rhistory
+install_vep_*.sh
+run_VEP_*.sh
+update_version.sh
