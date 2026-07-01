@@ -21,9 +21,9 @@ MAJOR=$(echo $CURRENT_VERSION | cut -d. -f2 | cut -d_ -f2)
 MINOR=$(echo $CURRENT_VERSION | cut -d. -f3)
 PATCH=$(echo $CURRENT_VERSION | cut -d. -f4)
 
-# Increment patch version
-NEW_PATCH=$((PATCH + 1))
-NEW_VERSION="${PROJECT_NAME}_v.${MAJOR}.${MINOR}.${NEW_PATCH}"
+# Increment minor version for significant changes
+NEW_MINOR=$((MINOR + 1))
+NEW_VERSION="${PROJECT_NAME}_v.${MAJOR}.${NEW_MINOR}.0"
 
 echo "New version: $NEW_VERSION"
 
@@ -71,52 +71,11 @@ else
     echo "Changes detected:"
     echo "$DIFF_OUTPUT"
     echo ""
+    
+    # Generate a commit message with the detailed diff
+    COMMIT_MESSAGE="Version $NEW_VERSION: Changes from $CURRENT_VERSION
 
-    # Analyze changes to generate descriptive commit message
-    CHANGE_SUMMARY=""
-    
-    # Check for BASE variable in 1_Define_data_specs.txt
-    if echo "$DIFF_OUTPUT" | grep -q 'BASE="\$BASE"'; then
-        CHANGE_SUMMARY="- Added BASE variable to 1_Define_data_specs.txt"
-    fi
-    
-    # Check for auto-detect BASE removal
-    if echo "$DIFF_OUTPUT" | grep -q "AUTO-DETECT BASE FROM INSTALLATION"; then
-        CHANGE_SUMMARY="$CHANGE_SUMMARY
-- Removed BASE auto-detection in 2_Run_analysis.sh"
-    fi
-    
-    # Check for README copy
-    if echo "$DIFF_OUTPUT" | grep -q "Copy README to BASE directory"; then
-        CHANGE_SUMMARY="$CHANGE_SUMMARY
-- Added README copy to BASE directory during installation"
-    fi
-    
-    # Check for VEP version changes
-    if echo "$DIFF_OUTPUT" | grep -q "release_115"; then
-        CHANGE_SUMMARY="$CHANGE_SUMMARY
-- Updated VEP to version 115"
-    fi
-    
-    # Check for plugin changes
-    if echo "$DIFF_OUTPUT" | grep -q "dbNSFP5.3.1a"; then
-        CHANGE_SUMMARY="$CHANGE_SUMMARY
-- Updated dbNSFP to 5.3.1a"
-    fi
-    
-    # Check for gnomAD changes
-    if echo "$DIFF_OUTPUT" | grep -q "gnomad.genomes.v4.1.1"; then
-        CHANGE_SUMMARY="$CHANGE_SUMMARY
-- Updated gnomAD to v4.1.1"
-    fi
-
-    # If no specific changes detected, use generic message
-    if [ -z "$CHANGE_SUMMARY" ]; then
-        COMMIT_MESSAGE="Version $NEW_VERSION: Updated installer from $CURRENT_VERSION"
-    else
-        COMMIT_MESSAGE="Version $NEW_VERSION: Updated installer from $CURRENT_VERSION
-$CHANGE_SUMMARY"
-    fi
+$(echo "$DIFF_OUTPUT")"
 fi
 
 # Change to repository directory
@@ -126,30 +85,6 @@ cd "$REPO_DIR"
 git add "$NEW_DIR"
 
 # Commit changes
-
-# Show the diff and ask if user wants to amend commit message
-echo ""
-echo "=========================================="
-echo "Commit created with message:"
-echo "$COMMIT_MESSAGE"
-echo "=========================================="
-echo ""
-echo "Do you want to amend the commit message? (y/n)"
-read -r AMEND_RESPONSE
-
-if [[ "$AMEND_RESPONSE" =~ ^[Yy]$ ]]; then
-    echo ""
-    echo "Please enter new commit message (press Ctrl+D when done):"
-    NEW_MESSAGE=$(cat)
-    
-    if [ -n "$NEW_MESSAGE" ]; then
-        git commit --amend -m "$NEW_MESSAGE"
-        COMMIT_MESSAGE="$NEW_MESSAGE"
-        echo "Commit message amended."
-    else
-        echo "No changes made to commit message."
-    fi
-fi
 git commit -m "$COMMIT_MESSAGE"
 
 # Create git tag
