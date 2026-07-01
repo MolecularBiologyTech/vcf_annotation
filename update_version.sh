@@ -4,6 +4,7 @@ set -e
 # Configuration
 REPO_DIR="/Users/matteozoia/Documents/Lavoro/GitHub/vcf_annotation"
 VERSIONS_DIR="$REPO_DIR/Versions"
+PROJECT_NAME="Variants_AnnotationPrioritization"
 
 # Get current version (find latest version)
 CURRENT_VERSION=$(ls -1 "$VERSIONS_DIR" | sort -V | tail -n 1)
@@ -15,14 +16,14 @@ fi
 
 echo "Current version: $CURRENT_VERSION"
 
-# Parse version numbers (format: v.1.0.0)
-MAJOR=$(echo $CURRENT_VERSION | cut -d. -f2)
+# Parse version numbers (format: Variants_AnnotationPrioritization_v.1.0.0)
+MAJOR=$(echo $CURRENT_VERSION | cut -d. -f2 | cut -d_ -f2)
 MINOR=$(echo $CURRENT_VERSION | cut -d. -f3)
 PATCH=$(echo $CURRENT_VERSION | cut -d. -f4)
 
 # Increment patch version
 NEW_PATCH=$((PATCH + 1))
-NEW_VERSION="v.${MAJOR}.${MINOR}.${NEW_PATCH}"
+NEW_VERSION="${PROJECT_NAME}_v.${MAJOR}.${MINOR}.${NEW_PATCH}"
 
 echo "New version: $NEW_VERSION"
 
@@ -125,6 +126,30 @@ cd "$REPO_DIR"
 git add "$NEW_DIR"
 
 # Commit changes
+
+# Show the diff and ask if user wants to amend commit message
+echo ""
+echo "=========================================="
+echo "Commit created with message:"
+echo "$COMMIT_MESSAGE"
+echo "=========================================="
+echo ""
+echo "Do you want to amend the commit message? (y/n)"
+read -r AMEND_RESPONSE
+
+if [[ "$AMEND_RESPONSE" =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "Please enter new commit message (press Ctrl+D when done):"
+    NEW_MESSAGE=$(cat)
+    
+    if [ -n "$NEW_MESSAGE" ]; then
+        git commit --amend -m "$NEW_MESSAGE"
+        COMMIT_MESSAGE="$NEW_MESSAGE"
+        echo "Commit message amended."
+    else
+        echo "No changes made to commit message."
+    fi
+fi
 git commit -m "$COMMIT_MESSAGE"
 
 # Create git tag

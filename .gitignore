@@ -27,4 +27,3 @@ Thumbs.db
 .Rhistory
 install_vep_*.sh
 run_VEP_*.sh
-update_version.sh
