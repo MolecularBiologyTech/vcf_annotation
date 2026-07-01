@@ -4,7 +4,20 @@
 
 ### Installation (Recommended Method)
 
-Use the simple installation wrapper script:
+#### Download Specific Version
+
+```bash
+# Download a specific version (interactive selection)
+./download_version.sh
+
+# This will:
+# 1. Show available versions from GitHub
+# 2. Let you select which version to download
+# 3. Download only the selected version (not all versions)
+# 4. Create a directory with the installer and README
+```
+
+After downloading, use the installation wrapper script:
 
 ```bash
 ./Variants_Prioritization_Workflow_Installer_wrapper.sh /path/to/installation/directory
@@ -21,15 +34,15 @@ This will:
 ./Variants_Prioritization_Workflow_Installer_wrapper.sh /home/user/trio_analysis
 ```
 
-### Installation (Manual Method)
+#### Alternative: Clone Full Repository
 
-If you prefer manual installation:
+If you prefer to clone the full repository with all versions:
 
 1. Download the latest installer from the `Versions/` directory
 2. Edit the `BASE` variable at the top of the script to your desired installation path
 3. Run with sudo:
 ```bash
-sudo bash Versions/v.1.0.3/Variants_Prioritization_Workflow_Installer_v.1.0.3.sh
+sudo bash Versions/Variants_AnnotationPrioritization_v.1.0.3/Variants_Prioritization_Workflow_Installer_Variants_AnnotationPrioritization_v.1.0.3.sh
 ```
 
 ---
