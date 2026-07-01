@@ -29,7 +29,7 @@ If you prefer manual installation:
 2. Edit the `BASE` variable at the top of the script to your desired installation path
 3. Run with sudo:
 ```bash
-sudo bash Versions/v.1.0.3/Variants_Prioritization_Workflow_Installer_v.1.0.3.sh
+sudo bash Versions/v.1.0.8/Variants_Prioritization_Workflow_Installer_v.1.0.8.sh
 ```
 
 ---
@@ -50,7 +50,7 @@ The pipeline is specifically optimized for rare Mendelian diseases where de novo
 
 ## 2. Installation and Configuration Overview
 
-The installation script (Variants_Prioritization_Workflow_Installer_v.1.0.2.sh) automatically:
+The installation script (Variants_Prioritization_Workflow_Installer_v.1.0.8.sh) automatically:
 
 1. **Installs all required tools** (VEP via Docker, AnnotSV, Exomiser, bcftools, samtools, bedtools)
 2. **Downloads annotation databases** (CADD, dbNSFP, SpliceAI, REVEL, AlphaMissense, LOFTEE, OpenTargets, gnomAD v4, ClinVar)
@@ -70,7 +70,7 @@ After installation, users only need to:
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| **VEP** (Variant Effect Predictor) | 116.0 (Docker) | Annotates SNVs/indels with functional consequences, gene names, and pathogenicity scores via Docker container (latest release June 2026) |
+| **VEP** (Variant Effect Predictor) | 115.0 (Docker) | Annotates SNVs/indels with functional consequences, gene names, and pathogenicity scores via Docker container |
 | **AnnotSV** | v3.5.10 | Annotates structural variants (SVs) with clinical significance, gene overlap, and population frequency |
 | **Exomiser** | 15.0.0 | Phenotype-driven variant prioritization using HPO terms and disease databases |
 | **bcftools** | 1.21 | VCF manipulation, filtering, and trio-based de novo detection |
@@ -93,7 +93,7 @@ After installation, users only need to:
 | **LOFTEE** | Loss-of-function transcript effect estimator for filtering spurious LoF variants |
 | **OpenTargets** | Drug target associations and therapeutic insights |
 | **gnomAD v4** | Latest population frequency data from large-scale sequencing projects |
-| **VEP Cache** (GRCh38) | Pre-computed variant annotations for fast lookup (Docker-based, v116.0) |
+| **VEP Cache** (GRCh38) | Pre-computed variant annotations for fast lookup (Docker-based, v115.0) |
 
 #### AnnotSV Annotation Databases (for Structural Variants)
 
