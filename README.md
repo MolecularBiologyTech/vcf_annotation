@@ -17,22 +17,21 @@
 # 4. Create a directory with the installer and README
 ```
 
-After downloading, use the installation wrapper script:
+After downloading, install using the version-specific installer:
 
 ```bash
-./Variants_Prioritization_Workflow_Installer_wrapper.sh /path/to/installation/directory
+# Edit the BASE variable at the top of the installer script
+nano Variants_Prioritization_Workflow_Installer_Variants_AnnotationPrioritization_v.X.X.X.sh
+
+# Run with sudo
+sudo bash Variants_Prioritization_Workflow_Installer_Variants_AnnotationPrioritization_v.X.X.X.sh
 ```
 
 This will:
 - Create all necessary directories
-- Set the BASE variable automatically
-- Run the full installation
 - Install all tools and databases
-
-**Example:**
-```bash
-./Variants_Prioritization_Workflow_Installer_wrapper.sh /home/user/trio_analysis
-```
+- Set up conda environments
+- Configure Docker for VEP execution
 
 #### Alternative: Clone Full Repository
 
