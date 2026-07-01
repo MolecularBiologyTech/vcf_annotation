@@ -74,12 +74,6 @@ if [ -f "temp_repo/README.md" ]; then
     cp "temp_repo/README.md" "./README.md"
 fi
 
-# Copy wrapper script if available
-if [ -f "temp_repo/Variants_Prioritization_Workflow_Installer_wrapper.sh" ]; then
-    cp "temp_repo/Variants_Prioritization_Workflow_Installer_wrapper.sh" "./Variants_Prioritization_Workflow_Installer_wrapper.sh"
-    chmod +x "./Variants_Prioritization_Workflow_Installer_wrapper.sh"
-fi
-
 # Clean up
 rm -rf temp_repo
 
@@ -90,8 +84,6 @@ echo "=========================================="
 echo "Downloaded: Variants_Prioritization_Workflow_Installer_${SELECTED_TAG}.sh"
 echo "Location: $(pwd)"
 echo ""
-echo "To install, run:"
-echo "  ./Variants_Prioritization_Workflow_Installer_wrapper.sh /path/to/installation/directory"
-echo "Or manually:"
+echo "To install, edit the BASE variable in the installer and run:"
 echo "  sudo bash Variants_Prioritization_Workflow_Installer_${SELECTED_TAG}.sh"
 echo "=========================================="
